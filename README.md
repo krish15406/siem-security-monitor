@@ -1,4 +1,6 @@
+## 🌐 Live Demo
 
+**Open SENTINEL SIEM Dashboard:** siem-security-monitor-bzgd4vuqf3nhqy2bjs8tn8
 # SENTINEL — SIEM System
 
 ## 1. Project Overview
