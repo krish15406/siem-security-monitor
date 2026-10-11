@@ -1,156 +1,217 @@
-from pathlib import Path
 
-import pandas as pd
 import streamlit as st
-
+import pandas as pd
 from detector import detect_threats
 
-
-# Dashboard configuration
 st.set_page_config(
-	page_title="SIEM Security Monitor",
-	page_icon="🛡️",
-	layout="wide",
+    page_title="SENTINEL | SIEM",
+    page_icon="🛡️",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-st.title("🛡️ SIEM Security Monitoring System")
-st.write(
-	"Log Analysis | Threat Detection | Security Monitoring"
-)
+st.markdown("""
+<style>
+.stApp {
+    background: #0b1120;
+    color: #e5e7eb;
+}
+[data-testid="stSidebar"] {
+    background: #111827;
+    border-right: 1px solid #263449;
+}
+h1, h2, h3 {
+    color: #f1f5f9 !important;
+}
+[data-testid="stMetric"] {
+    background: #151f30;
+    border: 1px solid #29384e;
+    padding: 18px;
+    border-radius: 12px;
+}
+[data-testid="stMetricLabel"] {
+    color: #9caec5 !important;
+}
+[data-testid="stMetricValue"] {
+    color: #f8fafc !important;
+}
+div[data-testid="stDataFrame"] {
+    border: 1px solid #29384e;
+    border-radius: 10px;
+}
+hr {
+    border-color: #29384e;
+}
+</style>
+""", unsafe_allow_html=True)
 
-# Load and process the sample logs
-log_file = Path(__file__).parent / "logs.csv"
+
+@st.cache_data
+def load_logs():
+    return pd.read_csv("logs.csv")
+
 
 try:
-	logs = pd.read_csv(log_file)
+    logs = load_logs()
+    alerts = detect_threats(logs.copy())
+except Exception as error:
+    st.error(f"Could not load security data: {error}")
+    st.stop()
 
-	required_columns = {
-		"timestamp", "source", "username",
-		"src_ip", "event_type", "status",
-	}
+st.sidebar.markdown("# 🛡️ SENTINEL")
+st.sidebar.caption("SECURITY INFORMATION & EVENT MANAGEMENT")
+st.sidebar.divider()
 
-	missing = required_columns - set(logs.columns)
+page = st.sidebar.radio(
+    "NAVIGATION",
+    ["Overview", "Threat Detection", "Log Explorer", "Incident Center"],
+)
 
-	if missing:
-		st.error(f"Missing log columns: {sorted(missing)}")
-		st.stop()
+st.sidebar.divider()
+st.sidebar.markdown("### SYSTEM STATUS")
+st.sidebar.success("Detection engine loaded")
+st.sidebar.info("Mode: Sample CSV logs")
+st.sidebar.caption("Prototype • Local environment")
 
-	logs["timestamp"] = pd.to_datetime(
-		logs["timestamp"], errors="coerce"
-	)
-	logs = logs.dropna(subset=["timestamp"])
+st.markdown("## 🛡️ SENTINEL Security Operations Center")
+st.caption("Centralized log analysis • Threat detection • Security monitoring")
 
-	alerts = detect_threats(logs)
-
-except (OSError, ValueError, KeyError) as error:
-	st.error(f"Could not process security logs: {error}")
-	st.stop()
-
-
-# Summary metrics
-st.subheader("Security Overview")
-
-total_events = len(logs)
+total_logs = len(logs)
 total_alerts = len(alerts)
-
-critical_count = (
-	int((alerts["severity"] == "Critical").sum())
-	if not alerts.empty else 0
-)
-
-high_count = (
-	int((alerts["severity"] == "High").sum())
-	if not alerts.empty else 0
-)
-
-medium_count = (
-	int((alerts["severity"] == "Medium").sum())
-	if not alerts.empty else 0
-)
+critical = int((alerts["severity"] == "Critical").sum()) if not alerts.empty else 0
+high = int((alerts["severity"] == "High").sum()) if not alerts.empty else 0
 
 c1, c2, c3, c4 = st.columns(4)
+c1.metric("Total Events", total_logs)
+c2.metric("Security Alerts", total_alerts)
+c3.metric("Critical Alerts", critical)
+c4.metric("High Alerts", high)
 
-c1.metric("Total Events", total_events)
-c2.metric("Total Alerts", total_alerts)
-c3.metric("Critical Alerts", critical_count)
-c4.metric("High Alerts", high_count)
-
-
-# Event charts
 st.divider()
-left, right = st.columns(2)
 
-with left:
-	st.subheader("Events by Source")
-	st.bar_chart(logs["source"].value_counts())
+if page == "Overview":
+    left, right = st.columns([1.1, 1])
 
-with right:
-	st.subheader("Alerts by Severity")
+    with left:
+        st.subheader("📊 Event Distribution")
+        if "event_type" in logs.columns and not logs.empty:
+            distribution = logs["event_type"].value_counts()
+            st.bar_chart(distribution)
+        else:
+            st.info("No event type data available.")
 
-	if not alerts.empty:
-		st.bar_chart(alerts["severity"].value_counts())
-	else:
-		st.info("No alerts detected.")
+    with right:
+        st.subheader("🚨 Alerts by Severity")
+        if not alerts.empty:
+            severity_counts = (
+                alerts["severity"].value_counts()
+                .reindex(["Critical", "High", "Medium", "Low"], fill_value=0)
+            )
+            st.bar_chart(severity_counts)
+        else:
+            st.success("No alerts detected.")
 
+    st.subheader("⚠️ Recent Security Alerts")
+    if not alerts.empty:
+        st.dataframe(
+            alerts.sort_values("timestamp", ascending=False),
+            use_container_width=True,
+            hide_index=True,
+        )
+    else:
+        st.success("No security alerts detected in the sample logs.")
 
-# Log explorer
+elif page == "Threat Detection":
+    st.subheader("🔍 Threat Detection Engine")
+    st.write("Alerts generated by the configured detection rules.")
+
+    if alerts.empty:
+        st.success("No threats detected.")
+    else:
+        severity_filter = st.multiselect(
+            "Filter by severity",
+            options=["Critical", "High", "Medium", "Low"],
+            default=["Critical", "High", "Medium", "Low"],
+        )
+        filtered = alerts[alerts["severity"].isin(severity_filter)]
+        st.dataframe(filtered, use_container_width=True, hide_index=True)
+        st.download_button(
+            "⬇️ Export filtered alerts",
+            filtered.to_csv(index=False),
+            file_name="security_alerts.csv",
+            mime="text/csv",
+        )
+
+elif page == "Log Explorer":
+    st.subheader("📁 Security Log Explorer")
+    st.write("Search and filter the available sample events.")
+
+    search = st.text_input("Search logs", placeholder="Enter IP, username, event...")
+    filtered_logs = logs.copy()
+
+    if search:
+        mask = filtered_logs.astype(str).apply(
+            lambda column: column.str.contains(search, case=False, na=False)
+        ).any(axis=1)
+        filtered_logs = filtered_logs[mask]
+
+    if "event_type" in filtered_logs.columns:
+        event_types = sorted(filtered_logs["event_type"].dropna().unique())
+        selected_types = st.multiselect(
+            "Event types",
+            event_types,
+            default=event_types,
+        )
+        filtered_logs = filtered_logs[
+            filtered_logs["event_type"].isin(selected_types)
+        ]
+
+    st.caption(f"Showing {len(filtered_logs)} of {len(logs)} events")
+    st.dataframe(filtered_logs, use_container_width=True, hide_index=True)
+
+    st.download_button(
+        "⬇️ Export logs",
+        filtered_logs.to_csv(index=False),
+        file_name="filtered_security_logs.csv",
+        mime="text/csv",
+    )
+
+elif page == "Incident Center":
+    st.subheader("🧭 Incident Center")
+    st.write("Review detected events and their recommended investigation priorities.")
+
+    if alerts.empty:
+        st.success("There are no detected incidents to review.")
+    else:
+        for _, alert in alerts.sort_values(
+            "timestamp", ascending=False
+        ).iterrows():
+            with st.expander(
+                f"{alert['severity']} | {alert['threat']} | {alert['src_ip']}"
+            ):
+                st.write(f"**Timestamp:** {alert['timestamp']}")
+                st.write(f"**Severity:** {alert['severity']}")
+                st.write(f"**Source IP:** {alert['src_ip']}")
+                st.write(f"**Details:** {alert['details']}")
+
+                if alert["severity"] == "Critical":
+                    st.warning(
+                        "Priority: Investigate the affected source and verify "
+                        "the malware alert using trusted security tools."
+                    )
+                elif alert["severity"] == "High":
+                    st.warning(
+                        "Priority: Review authentication logs and verify "
+                        "whether the failed login pattern is expected."
+                    )
+                else:
+                    st.info(
+                        "Priority: Review the event and confirm whether "
+                        "the activity was authorized."
+                    )
+
 st.divider()
-st.subheader("Security Event Explorer")
-
-sources = sorted(logs["source"].unique().tolist())
-
-selected_sources = st.multiselect(
-	"Filter by source system",
-	options=sources,
-	default=sources,
-)
-
-filtered_logs = logs[
-	logs["source"].isin(selected_sources)
-]
-
-st.dataframe(
-	filtered_logs,
-	use_container_width=True,
-	hide_index=True,
-)
-
-
-# Alert explorer and incident report
-st.divider()
-st.subheader("Detected Security Alerts")
-
-if alerts.empty:
-	st.success("No alerts triggered by the current rules.")
-else:
-	severities = ["Critical", "High", "Medium"]
-
-	selected_severities = st.multiselect(
-		"Filter by severity",
-		options=severities,
-		default=severities,
-	)
-
-	filtered_alerts = alerts[
-		alerts["severity"].isin(selected_severities)
-	]
-
-	st.dataframe(
-		filtered_alerts,
-		use_container_width=True,
-		hide_index=True,
-	)
-
-	report = filtered_alerts.to_csv(index=False).encode("utf-8")
-
-	st.download_button(
-		label="Download Incident Report (CSV)",
-		data=report,
-		file_name="siem_incident_report.csv",
-		mime="text/csv",
-	)
-
 st.caption(
-	"Educational prototype using synthetic logs and "
-	"rule-based threat detection."
+    "SENTINEL SIEM Prototype | Uses sample CSV data; "
+    "not connected to live enterprise systems."
 )
