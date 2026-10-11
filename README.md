@@ -3,29 +3,51 @@
 
 ## 1. Project Overview
 
-SENTINEL is a Python-based Security Information and Event Management (SIEM) prototype. It analyzes security logs, identifies suspicious activities, generates alerts, and presents security information through an interactive dashboard.
+SENTINEL is a Python-based Security Information and Event Management (SIEM) prototype. It analyzes sample security logs, detects suspicious activities, generates security alerts, and creates incident reports through an interactive dashboard.
 
 ## 2. Objectives
 
-- Collect and analyze sample security logs.
+- Analyze security logs from simulated systems.
 - Detect repeated failed login attempts.
 - Identify malware detection events.
-- Monitor privilege changes.
-- Generate incident reports.
-- Visualize events and alerts using a dashboard.
+- Monitor privilege-change events.
+- Classify alerts by severity.
+- Display security information through a dashboard.
+- Generate downloadable incident reports.
+- Test threat detection rules using automated tests.
 
 ## 3. Technologies Used
 
-- Python
-- Pandas
-- Streamlit
-- CSV
-- Git and GitHub
+- **Python** — application logic and threat detection.
+- **Pandas** — log processing and data analysis.
+- **Streamlit** — interactive dashboard.
+- **CSV** — sample log storage and incident reports.
+- **Git and GitHub** — version control and project hosting.
 
-## 4. Project Structure
+## 4. Project Modules
+
+### Log Analysis
+Reads sample security logs from a CSV file and processes timestamps, source systems, usernames, IP addresses, event types, and statuses.
+
+### Threat Detection
+Uses predefined rules to detect:
+- Five or more failed login attempts from the same IP address within a five-minute window.
+- Malware detection events.
+- Privilege-change events.
+
+### Security Dashboard
+Displays event totals, security alerts, severity charts, searchable logs, and incident details.
+
+### Incident Reporting
+Exports detected security alerts to `incident_report.csv`.
+
+### Automated Testing
+Uses `test_detector.py` to test repeated failed logins, malware detection, and privilege-change detection.
+
+## 5. Project Structure
 
 ```text
-siem-security-monitor/
+siem-project/
 ├── app.py
 ├── detector.py
 ├── generate_report.py
@@ -36,17 +58,9 @@ siem-security-monitor/
 └── .gitignore
 ```
 
-## 5. Detection Rules
-
-| Threat | Detection rule | Severity |
-|---|---|---|
-| Repeated Failed Logins | Five or more failed logins from one IP within five minutes | High |
-| Malware Detection | A malware detection event in the logs | Critical |
-| Privilege Change | A privilege change event in the logs | Medium |
-
 ## 6. Installation
 
-Install Python 3 and open a terminal in the project directory.
+Ensure Python 3 is installed.
 
 Create a virtual environment:
 
@@ -60,7 +74,7 @@ Activate it on macOS or Linux:
 source .venv/bin/activate
 ```
 
-Install dependencies:
+Install the required libraries:
 
 ```bash
 pip install streamlit==1.41.1 pandas==2.2.3
@@ -68,41 +82,55 @@ pip install streamlit==1.41.1 pandas==2.2.3
 
 ## 7. Running the Dashboard
 
+Run:
+
 ```bash
 streamlit run app.py
 ```
 
+Open the local URL displayed in the terminal.
+
 ## 8. Generating an Incident Report
+
+Run:
 
 ```bash
 python generate_report.py
 ```
 
-The report is saved as `incident_report.csv`.
+The generated report is saved as `incident_report.csv`.
 
 ## 9. Running Automated Tests
+
+Run:
 
 ```bash
 python test_detector.py
 ```
 
-The tests check repeated failed login detection, malware detection, and privilege change detection.
+The tests verify the three implemented detection rules. The expected output includes three PASS messages and `All tests passed!`.
 
-## 10. Dashboard Features
+## 10. Expected Results
 
-- Security event summary
-- Alert severity charts
-- Threat detection results
-- Searchable log explorer
-- Incident details and investigation priorities
-- CSV export options
+The supplied sample data produces three expected alert types:
+
+| Threat | Severity |
+|---|---|
+| Repeated Failed Logins | High |
+| Malware Detection Event | Critical |
+| Privilege Change | Medium |
 
 ## 11. Limitations and Future Enhancements
 
-This prototype currently analyzes sample CSV logs. It is not connected to live servers and does not provide enterprise-grade real-time monitoring.
+This project is a prototype that uses sample CSV logs. It is not connected to live servers and does not provide enterprise-grade real-time monitoring.
 
-Future enhancements include live log ingestion, additional detection rules, alert notifications, user authentication, and database integration.
+Possible future enhancements include:
+- Live log ingestion from multiple systems.
+- Additional threat detection rules.
+- Automated alert notifications.
+- Database integration.
+- User authentication and access control.
 
 ## 12. Conclusion
 
-SENTINEL demonstrates the fundamental workflow of a SIEM system: log analysis, threat detection, alert generation, incident reporting, and security monitoring.
+SENTINEL demonstrates the fundamental workflow of a SIEM system: log analysis, rule-based threat detection, security monitoring, alert generation, and incident reporting.
