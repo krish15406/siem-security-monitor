@@ -1,92 +1,108 @@
-# SIEM — Security Information and Event Management System
+
+# SENTINEL — SIEM System
 
 ## 1. Project Overview
 
-The Security Information and Event Management (SIEM) System is a Python-based security monitoring application designed to analyze system logs, identify suspicious activities, generate security alerts, and create incident reports.
-
-The project demonstrates basic security monitoring and rule-based threat detection using sample log data.
+SENTINEL is a Python-based Security Information and Event Management (SIEM) prototype. It analyzes security logs, identifies suspicious activities, generates alerts, and presents security information through an interactive dashboard.
 
 ## 2. Objectives
 
-- Analyze logs from simulated systems and servers.
-- Identify repeated failed login attempts.
-- Detect malware-related events recorded in logs.
-- Monitor privilege-change events.
-- Classify alerts according to severity.
-- Display security information through a dashboard.
-- Generate incident reports in CSV format.
+- Collect and analyze sample security logs.
+- Detect repeated failed login attempts.
+- Identify malware detection events.
+- Monitor privilege changes.
+- Generate incident reports.
+- Visualize events and alerts using a dashboard.
 
 ## 3. Technologies Used
 
-- **Python** — application logic and threat detection.
-- **Pandas** — log processing and data analysis.
-- **Streamlit** — interactive security monitoring dashboard.
-- **CSV** — sample log storage and incident report generation.
-- **Visual Studio Code** — development environment.
+- Python
+- Pandas
+- Streamlit
+- CSV
+- Git and GitHub
 
-## 4. Project Modules
-
-### Log Analysis
-Reads sample security logs from a CSV file and processes event timestamps, source systems, usernames, IP addresses, event types, and statuses.
-
-### Threat Detection
-Uses rule-based detection to identify:
-- Five or more failed login attempts from the same IP address within a five-minute window.
-- Malware detection events.
-- Privilege-change events.
-
-### Security Dashboard
-Displays the total number of events, detected alerts, critical alerts, and high-severity alerts. It also provides event charts and filtering options.
-
-### Incident Reporting
-Exports detected security alerts to `incident_report.csv` for further analysis.
-
-## 5. Project Structure
+## 4. Project Structure
 
 ```text
-siem-project/
-├── .venv/
+siem-security-monitor/
 ├── app.py
 ├── detector.py
 ├── generate_report.py
+├── test_detector.py
 ├── logs.csv
 ├── incident_report.csv
-└── README.md
+├── README.md
+└── .gitignore
 ```
 
-## 6. How to Run the Project
+## 5. Detection Rules
 
-1. Open the project folder in VS Code.
-2. Activate the virtual environment:
+| Threat | Detection rule | Severity |
+|---|---|---|
+| Repeated Failed Logins | Five or more failed logins from one IP within five minutes | High |
+| Malware Detection | A malware detection event in the logs | Critical |
+| Privilege Change | A privilege change event in the logs | Medium |
 
-   `source .venv/bin/activate`
+## 6. Installation
 
-3. Start the dashboard:
+Install Python 3 and open a terminal in the project directory.
 
-   `streamlit run app.py`
+Create a virtual environment:
 
-4. Open the local URL displayed in the terminal.
+```bash
+python3 -m venv .venv
+```
 
-5. To generate an incident report, open another terminal, activate the virtual environment, and run:
+Activate it on macOS or Linux:
 
-   `python generate_report.py`
+```bash
+source .venv/bin/activate
+```
 
-## 7. Expected Results
+Install dependencies:
 
-The supplied sample data is designed to produce three alerts:
+```bash
+pip install streamlit==1.41.1 pandas==2.2.3
+```
 
-- **High:** Repeated Failed Logins.
-- **Critical:** Malware Detection Event.
-- **Medium:** Privilege Change.
+## 7. Running the Dashboard
 
-The dashboard displays the alerts, and the report generator saves them to a CSV file.
+```bash
+streamlit run app.py
+```
 
-## 8. Limitations and Future Enhancements
+## 8. Generating an Incident Report
 
-- The current implementation uses sample CSV logs rather than live logs from real servers.
-- Detection is based on predefined rules, not machine learning.
-- Future versions could support live log ingestion, additional detection rules, alert notifications, authentication, and integration with multiple log sources.
+```bash
+python generate_report.py
+```
 
-## 9. Conclusion
+The report is saved as `incident_report.csv`.
 
-This project demonstrates the fundamentals of log analysis, rule-based threat detection, security event monitoring, and incident reporting through a Python-based SIEM prototype.
+## 9. Running Automated Tests
+
+```bash
+python test_detector.py
+```
+
+The tests check repeated failed login detection, malware detection, and privilege change detection.
+
+## 10. Dashboard Features
+
+- Security event summary
+- Alert severity charts
+- Threat detection results
+- Searchable log explorer
+- Incident details and investigation priorities
+- CSV export options
+
+## 11. Limitations and Future Enhancements
+
+This prototype currently analyzes sample CSV logs. It is not connected to live servers and does not provide enterprise-grade real-time monitoring.
+
+Future enhancements include live log ingestion, additional detection rules, alert notifications, user authentication, and database integration.
+
+## 12. Conclusion
+
+SENTINEL demonstrates the fundamental workflow of a SIEM system: log analysis, threat detection, alert generation, incident reporting, and security monitoring.
