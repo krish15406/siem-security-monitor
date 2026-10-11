@@ -4,6 +4,7 @@
 ## 1. Project Overview
 
 SENTINEL is a Python-based Security Information and Event Management (SIEM) prototype. It analyzes sample security logs, detects suspicious activities, generates security alerts, and creates incident reports through an interactive dashboard.
+![SENTINEL Security Monitoring Dashboard](sentinel-dashboard.png)
 
 ## 2. Objectives
 
