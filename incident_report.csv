@@ -1,0 +1,4 @@
+timestamp,src_ip,threat,severity,count,details
+2026-10-10 10:05:00,192.0.2.10,Repeated Failed Logins,High,5,5 failed logins from 192.0.2.10 within a 5-minute window
+2026-10-10 10:04:00,192.0.2.40,Malware Detection Event,Critical,1,Malware event reported by web-server-01
+2026-10-10 10:03:00,192.0.2.30,Privilege Change,Medium,1,Privilege change recorded for admin
