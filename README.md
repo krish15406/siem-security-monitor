@@ -55,6 +55,7 @@ siem-project/
 ├── logs.csv
 ├── incident_report.csv
 ├── README.md
+├── requirements.txt
 └── .gitignore
 ```
 
