@@ -58,9 +58,22 @@ siem-project/
 └── .gitignore
 ```
 
+
 ## 6. Installation
 
-Ensure Python 3 is installed.
+### Prerequisites
+
+- Python 3 installed
+- Git installed (optional if downloading the ZIP)
+
+### Setup
+
+Clone the repository:
+
+```bash
+git clone https://github.com/krish15406/siem-security-monitor.git
+cd siem-security-monitor
+```
 
 Create a virtual environment:
 
@@ -74,11 +87,18 @@ Activate it on macOS or Linux:
 source .venv/bin/activate
 ```
 
-Install the required libraries:
+On Windows, activate it using:
 
 ```bash
-pip install streamlit==1.41.1 pandas==2.2.3
+.venv\Scripts\activate
 ```
+
+Install the dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
 
 ## 7. Running the Dashboard
 
